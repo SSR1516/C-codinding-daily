@@ -1,0 +1,55 @@
+class Solution {
+public:
+    string smallestWindow(string s, string p) {
+        int len1 = s.length();
+        int len2 = p.length();
+
+        if (len1 < len2) return "-1"; // If s is smaller than p, no such window exists
+
+        // Frequency map for characters in p
+        vector<int> patFreq(256, 0);
+        for (int i = 0; i < len2; i++) {
+            patFreq[p[i]]++;
+        }
+
+        int start = 0, startIdx = -1, minLen = INT_MAX;
+        int count = 0; // To keep track of the characters matched
+        vector<int> strFreq(256, 0);
+
+        for (int end = 0; end < len1; end++) {
+            // Add current character to window
+            strFreq[s[end]]++;
+
+            // If s[end] is part of p and we haven't yet added enough of this character, increment count
+            if (patFreq[s[end]] != 0 && strFreq[s[end]] <= patFreq[s[end]]) {
+                count++;
+            }
+
+            // When all characters are matched
+            if (count == len2) {
+                // Try to minimize the window by moving the start pointer
+                while (patFreq[s[start]] == 0 || strFreq[s[start]] > patFreq[s[start]]) {
+                    if (strFreq[s[start]] > patFreq[s[start]]) {
+                        strFreq[s[start]]--;
+                    }
+                    start++;
+                }
+
+                // Update the smallest window
+                int windowLen = end - start + 1;
+                if (windowLen < minLen) {
+                    minLen = windowLen;
+                    startIdx = start;
+                }
+            }
+        }
+
+        // If no window is found, return -1
+        if (startIdx == -1) {
+            return "-1";
+        }
+
+        // Return the smallest window
+        return s.substr(startIdx, minLen);
+    }
+};
